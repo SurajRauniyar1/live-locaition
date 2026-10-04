@@ -1,34 +1,27 @@
-const { tunnel: cloudflaredTunnel } = require("cloudflared")
-const cookieParser = require("cookie-parser")
-const socketIO = require("socket.io")
-const config = require("./config")
-const express = require("express")
-const tarkine = require("tarkine")
-const http = require('http')
+const cookieParser = require("cookie-parser");
+const socketIO = require("socket.io");
+const express = require("express");
+const tarkine = require("tarkine");
+const http = require("http");
 
-const app = express()
-const server = http.createServer(app)
-const io = new socketIO.Server(server)
-const PORT = process.env.PORT || config.port
-global.remoteURL
+const app = express();
+const server = http.createServer(app);
+const io = new socketIO.Server(server);
 
-global.IO = io
+const PORT = process.env.PORT || 6589;
 
-app.set("view engine", "html")
-app.engine("html", tarkine.renderFile)
-app.use(cookieParser())
-app.use(express.urlencoded({ extended: false }))
-app.use(express.static(__dirname + "/public"))
-app.use(express.json())
+global.IO = io;
 
-app.use("/", require("./router"))
+app.set("view engine", "html");
+app.engine("html", tarkine.renderFile);
 
-server.listen(PORT, async () => {
-    const localURL = `http://localhost:${PORT}`
-    remoteURL = await cloudflaredTunnel({
-        "--url": localURL
-    }).url
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static(__dirname + "/public"));
+app.use(express.json());
 
-    console.log(`LOCAL  : ${localURL}`)
-    console.log(`REMOTE : ${remoteURL}`)
-})
+app.use("/", require("./router"));
+
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
